@@ -1,21 +1,22 @@
 import React from 'react';
-import { Card, Typography } from '@mui/material';
+import { Card, Typography, Collapse } from '@mui/material';
 import { deepOrange } from '@mui/material/colors';
 
-const ServiceCard = ({ name, price }) => {
+const ServiceCard = ({ name, description, price, isExpanded, onClick }) => {
   return (
     <Card
+      onClick={onClick}
       sx={{
         backgroundColor: '#282636',
         color: '#fff',
         padding: '20px',
-        height: '200px',
+        height: isExpanded ? 'auto' : '200px',
         width: '300px',
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'flex-start', 
+        justifyContent: 'center',
         alignItems: 'center',
-        overflow: 'auto', 
+        cursor: 'pointer',
       }}
     >
       <Typography
@@ -30,6 +31,15 @@ const ServiceCard = ({ name, price }) => {
       >
         Ціна від {price}
       </Typography>
+
+      <Collapse in={isExpanded}>
+        <Typography
+          variant="body2"
+          sx={{ marginTop: '10px', textAlign: 'center' }}
+        >
+          {description}
+        </Typography>
+      </Collapse>
     </Card>
   );
 };
