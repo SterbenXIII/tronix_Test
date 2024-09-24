@@ -3,14 +3,17 @@ import { Card, Typography, Collapse } from '@mui/material';
 import { deepOrange } from '@mui/material/colors';
 
 const ServiceCard = ({ name, description, price, isExpanded, onClick }) => {
+  const formattedPrice = `${price.symbol} ${price.amount}`;
+
   return (
     <Card
       onClick={onClick}
       sx={{
-        backgroundColor: '#282636',
+        backgroundColor: '#242C48',
         color: '#fff',
         padding: '20px',
         height: isExpanded ? 'auto' : '200px',
+        minHeight: '200px',
         width: '300px',
         display: 'flex',
         flexDirection: 'column',
@@ -29,7 +32,7 @@ const ServiceCard = ({ name, description, price, isExpanded, onClick }) => {
         variant="h6"
         sx={{ color: deepOrange[400], fontWeight: 'bold', textAlign: 'center' }}
       >
-        Ціна від {price}
+        Price from {formattedPrice}
       </Typography>
 
       <Collapse in={isExpanded}>

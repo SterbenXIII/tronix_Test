@@ -1,16 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Container,
-  Grid2,
-  Box,
-  CircularProgress,
-  Select,
-  MenuItem,
-  InputLabel,
-  FormControl,
-} from '@mui/material';
+import { Container, Typography, Box } from '@mui/material';
 import Header from './components/Header';
-import ServiceCard from './components/ServiceCard';
+import LoadingOverlay from './components/LoadingOverlay';
+import FilterControls from './components/FilterControls';
+import Search from './components/Search';
+import ServiceList from './components/ServiceList';
 import { fetchServices } from './api/api';
 
 function App() {
@@ -19,6 +13,7 @@ function App() {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [sortOrder, setSortOrder] = useState('asc');
   const [expandedId, setExpandedId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const fetchData = async () => {
     setLoading(true);
@@ -33,26 +28,26 @@ function App() {
   };
 
   useEffect(() => {
-    const getServices = async () => {
-      await fetchData();
-    };
-
-    getServices();
+    fetchData();
   }, []);
 
-  const filteredServices = services.filter((service) =>
-    selectedCategory ? service.category === selectedCategory : true
-  );
+  useEffect(() => {
+    document.body.style.overflow = loading ? 'hidden' : 'auto';
+  }, [loading]);
+
+  const filteredServices = services
+    .filter((service) =>
+      selectedCategory ? service.category === selectedCategory : true
+    )
+    .filter((service) =>
+      service.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
   const sortedServices = filteredServices.sort((a, b) => {
-    const priceA = parseInt(a.price.replace(/\s+/g, '').replace('грн', ''));
-    const priceB = parseInt(b.price.replace(/\s+/g, '').replace('грн', ''));
+    const priceA = a.price.amount;
+    const priceB = b.price.amount;
 
-    if (sortOrder === 'asc') {
-      return priceA - priceB;
-    } else {
-      return priceB - priceA;
-    }
+    return sortOrder === 'asc' ? priceA - priceB : priceB - priceA;
   });
 
   return (
@@ -60,7 +55,7 @@ function App() {
       maxWidth="lg"
       sx={{
         paddingTop: '20px',
-        backgroundColor: '#1c1b22',
+        backgroundColor: '#121626',
         minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
@@ -71,59 +66,34 @@ function App() {
     >
       <Header />
 
-      {loading && (
-        <Box
-          sx={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            zIndex: 1000,
-          }}
-        >
-          <CircularProgress sx={{ color: '#fff' }} />
-        </Box>
-      )}
+      <LoadingOverlay loading={loading} />
+      <FilterControls
+        selectedCategory={selectedCategory}
+        setSelectedCategory={setSelectedCategory}
+        sortOrder={sortOrder}
+        setSortOrder={setSortOrder}
+      >
+        <Search searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+      </FilterControls>
 
       <Box
         sx={{
-          marginBottom: '20px',
           width: '100%',
           display: 'flex',
-          justifyContent: 'space-between',
+          justifyContent: 'flex-start',
+          marginBottom: '20px',
         }}
       >
-        <FormControl variant="outlined" sx={{ minWidth: 120 }}>
-          <InputLabel>Категорія</InputLabel>
-          <Select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            label="Категорія"
-          >
-            <MenuItem value="">
-              <em>Всі</em>
-            </MenuItem>
-            <MenuItem value="Фотографія">Фотографія</MenuItem>
-            <MenuItem value="Відео">Відео</MenuItem>
-          </Select>
-        </FormControl>
-
-        <FormControl variant="outlined" sx={{ minWidth: 120 }}>
-          <InputLabel>Сортування</InputLabel>
-          <Select
-            value={sortOrder}
-            onChange={(e) => setSortOrder(e.target.value)}
-            label="Сортування"
-          >
-            <MenuItem value="asc">Від меншої до більшої</MenuItem>
-            <MenuItem value="desc">Від більшої до меншої</MenuItem>
-          </Select>
-        </FormControl>
+        <Typography
+          variant="h6"
+          sx={{
+            color: '#fff',
+            fontSize: { xs: '1rem', md: '1.5rem', lg: '1.75rem' },
+          }}
+        >
+          {filteredServices.length}{' '}
+          {filteredServices.length === 1 ? 'item' : 'items'} found
+        </Typography>
       </Box>
 
       <Box
@@ -134,21 +104,20 @@ function App() {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
+          justifyContent: 'center',
         }}
       >
-        <Grid2 container spacing={4} justifyContent="center">
-          {sortedServices.map(({ id, name, description, price }) => (
-            <Grid2 xs={12} sm={6} md={4} key={id}>
-              <ServiceCard
-                name={name}
-                description={description}
-                price={price}
-                isExpanded={expandedId === id}
-                onClick={() => setExpandedId(expandedId === id ? null : id)}
-              />
-            </Grid2>
-          ))}
-        </Grid2>
+        {sortedServices.length === 0 ? (
+          <Typography variant="h6" sx={{ color: '#fff', minHeight: '600px' }}>
+            Not Found
+          </Typography>
+        ) : (
+          <ServiceList
+            services={sortedServices}
+            expandedId={expandedId}
+            setExpandedId={setExpandedId}
+          />
+        )}
       </Box>
     </Container>
   );

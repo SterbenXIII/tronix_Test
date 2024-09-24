@@ -1,19 +1,32 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
+import { AppBar, Toolbar, Typography } from '@mui/material';
 
 const Header = () => {
   return (
-    <Box
-      sx={{
-        textAlign: 'center',
-        marginBottom: '30px',
-        color: '#fff',
-      }}
+    <AppBar
+      position="static"
+      sx={{ backgroundColor: '#121626', margin: '20px' }}
     >
-      <Typography variant="h3" gutterBottom>
-        Ми займаємось розробкою наступних сайтів
+      <Toolbar>
+        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          Price list of our services
+        </Typography>
+      </Toolbar>
+      <Typography
+        variant="body1"
+        sx={{
+          padding: 2,
+          textAlign: 'left',
+          color: 'white',
+          maxWidth: '600px',
+        }}
+      >
+        We specialize in creating and implementing innovative digital solutions
+        for your business. Our team of professionals helps companies of all
+        sizes streamline processes, improve customer interactions, and expand
+        opportunities with modern technology.
       </Typography>
-    </Box>
+    </AppBar>
   );
 };
 
